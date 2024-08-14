@@ -3,7 +3,7 @@ services:
     #image: ${FRONTEND_IMAGE}
     container_name: ng_frontend
     build:
-      context: ./app/frontend
+      context: ./frontend
       dockerfile: Dockerfile
     environment:
       - REACT_APP_BACKEND_URL=http://backend:8080
@@ -16,7 +16,7 @@ services:
     #image: ${BACKEND_IMAGE}
     container_name: ng_backend
     build:
-      context: ./app/backend
+      context: ./backend
       dockerfile: Dockerfile
     environment:
       - MONGO_CONN_STR=mongodb://mongodb-svc:27017/todo?directConnection=true
