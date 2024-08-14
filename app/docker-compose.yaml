@@ -1,6 +1,6 @@
 services:
   frontend:
-    #image: public.ecr.aws/l0l7e4u1/3-tier-frontend:latest
+    #image: ${FRONTEND_IMAGE}
     container_name: ng_frontend
     build:
       context: ./app/frontend
@@ -13,7 +13,7 @@ services:
       - backend
 
   backend:
-    #image: public.ecr.aws/l0l7e4u1/3-tier-backend:latest
+    #image: ${BACKEND_IMAGE}
     container_name: ng_backend
     build:
       context: ./app/backend
