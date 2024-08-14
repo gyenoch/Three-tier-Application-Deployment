@@ -1,0 +1,56 @@
+services:
+  frontend:
+    #image: public.ecr.aws/l0l7e4u1/3-tier-frontend:latest
+    container_name: ng_frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  backend:
+    #image: public.ecr.aws/l0l7e4u1/3-tier-backend:latest
+    container_name: ng_backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - MONGO_CONN_STR=mongodb://mongodb-svc:27017/todo?directConnection=true
+      - MONGO_USERNAME=${MONGO_USERNAME}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+  mongodb:
+    image: mongo:4.4.6
+    container_name: mongodb
+    command:
+      - "numactl"
+      - "--interleave=all"
+      - "mongod"
+      - "--wiredTigerCacheSizeGB"
+      - "0.1"
+      - "--bind_ip"
+      - "0.0.0.0"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
