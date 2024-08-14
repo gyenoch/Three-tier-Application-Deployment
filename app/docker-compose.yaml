@@ -20,8 +20,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - MONGO_CONN_STR=mongodb://mongodb-svc:27017/todo?directConnection=true
-      - MONGO_USERNAME=${MONGO_USERNAME}
-      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_USERNAME=mongo-sec  #MONGO_USERNAME=${MONGO_USERNAME}
+      - MONGO_PASSWORD=mongo-sec  #MONGO_PASSWORD=${MONGO_PASSWORD}
     ports:
       - "8080:8080"
     depends_on:
