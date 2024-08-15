@@ -1,6 +1,7 @@
+version: '3.7'
+
 services:
   frontend:
-    #image: ${FRONTEND_IMAGE}
     container_name: ng_frontend
     build:
       context: ./frontend
@@ -13,21 +14,23 @@ services:
       - backend
 
   backend:
-    #image: ${BACKEND_IMAGE}
     container_name: ng_backend
     build:
       context: ./backend
       dockerfile: Dockerfile
     environment:
       - MONGO_CONN_STR=mongodb://mongodb-svc:27017/todo?directConnection=true
-      - MONGO_USERNAME=admin  #MONGO_USERNAME=${MONGO_USERNAME}
-      - MONGO_PASSWORD=password123  #MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_USERNAME_FILE=/run/secrets/mongo_username
+      - MONGO_PASSWORD_FILE=/run/secrets/mongo_password
     ports:
       - "8081:8080"
     depends_on:
       - mongodb
+    secrets:
+      - mongo_username
+      - mongo_password
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/ok"]
+      test: ["CMD", "node", "-e", "require('mongodb').MongoClient.connect(process.env.MONGO_CONN_STR, { useUnifiedTopology: true }, err => process.exit(err ? 1 : 0));"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -45,12 +48,21 @@ services:
       - "--bind_ip"
       - "0.0.0.0"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGO_INITDB_ROOT_USERNAME_FILE=/run/secrets/mongo_username
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/mongo_password
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    secrets:
+      - mongo_username
+      - mongo_password
 
 volumes:
   mongo-data:
+
+secrets:
+  mongo_username:
+    file: ./secrets/mongo_username.txt
+  mongo_password:
+    file: ./secrets/mongo_password.txt
